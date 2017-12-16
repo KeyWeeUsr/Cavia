@@ -14,4 +14,4 @@ if __name__ == '__main__':
         from cavia.core.console import Console as Client
     elif main_parser.type == 'gui':
         from cavia.core.gui import GUI as Client
-    Client().run()
+    Client(**vars(main_parser)).run()

@@ -1,6 +1,6 @@
 class Console(object):
-    def __init__(self, *args, **kwargs):
-        pass
+    def __init__(self, **kwargs):
+        self.parameters = kwargs
 
     def run(self, *args, **kwargs):
-        print('Console')
+        print('Console', args, kwargs)
