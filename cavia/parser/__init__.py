@@ -1,5 +1,6 @@
 from argparse import ArgumentParser, Action
 from cavia import __version__, __name__ as name
+from cavia.sources import Index
 
 
 class ExecuteAction(Action):
@@ -46,17 +47,13 @@ subparsers = Parser.add_subparsers()
 Parser.console_parser = subparsers.add_parser('console')
 Parser.gui_parser = subparsers.add_parser('gui')
 
-# add positional arguments for Console
-console_subparsers = Parser.console_parser.add_subparsers()
-Parser.console_parser.sources = console_subparsers.add_parser('sources')
-
 # add optional arguments for Console.sources
-Parser.console_parser.sources.add_argument(
-    'list',
+Parser.console_parser.add_argument(
+    '-s', '--sources',
+    help='show all available sources',
+    required=False, nargs=0,
     action=lambda *args, **kwargs: ExecuteAction(
         *args, **kwargs,
-        func=print,
-        func_args=('list', ),
-        func_kwargs={}
+        func=Index().print_sources
     )
 )
