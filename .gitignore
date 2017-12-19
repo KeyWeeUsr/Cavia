@@ -6,3 +6,6 @@
 *#*#*
 MANIFEST*
 *dist**
+
+# cache folder for Sources
+*__source_cache__*
