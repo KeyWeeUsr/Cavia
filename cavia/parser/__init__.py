@@ -71,3 +71,15 @@ Parser.console_parser.add_argument(
         ).fetch_list()
     )
 )
+
+Parser.console_parser.add_argument(
+    '-x', '--clear_cache',
+    help='clear cache for a source',
+    required=False, nargs=1,
+    action=lambda *args, **kwargs: ExecuteAction(
+        *args, **kwargs,
+        func=lambda *a, **kw: Index().get_source(
+            kw['arg_values'][0]
+        ).purge_cache()
+    )
+)

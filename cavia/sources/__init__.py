@@ -3,6 +3,7 @@ from urllib.request import urlopen
 from bs4 import BeautifulSoup
 
 from os.path import abspath, dirname, join, exists
+from shutil import rmtree
 from os import mkdir
 
 
@@ -84,6 +85,9 @@ class Source(object):
 
         with open(cache, 'wb') as f:
             return f.write(content)
+
+    def purge_cache(self):
+        rmtree(dirname(self.cache(self.name)))
 
     def fetch_list(self, *args, **kwargs):
         '''Download and cache the result return cache the next time.
