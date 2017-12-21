@@ -43,6 +43,7 @@ class Index(object):
         '''Return a Source instance fetched by the name.'''
         sources = [src.__name__.lower() for src in self.sources]
 
+        name = name.lower()
         if name not in sources:
             raise SourceDoesNotExist(repr(name))
 
@@ -113,3 +114,17 @@ class Source(object):
     def reload_list(self, *args, **kwargs):
         # redownload and cache the result
         pass
+
+    def print_items(self):
+        fetch_items = self.fetch_list()
+        len_items = len(fetch_items)
+
+        items = [
+            '{}.\t{}\n\t{}'.format(
+                str(i).zfill(len(str(len_items))),
+                items[0],  # name
+                items[1]   # URL
+            )
+            for i, items in enumerate(fetch_items)
+        ]
+        print('\n\n'.join(items))

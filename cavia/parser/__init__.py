@@ -68,7 +68,7 @@ Parser.console_parser.add_argument(
         *args, **kwargs,
         func=lambda *a, **kw: Index().get_source(
             kw['arg_values'][0]
-        ).fetch_list()
+        ).print_items()
     )
 )
 

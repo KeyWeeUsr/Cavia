@@ -5,7 +5,6 @@ class MangaPanda(Source):
     name = 'MangaPanda'
     url = 'http://www.mangapanda.com'
     item_url = 'http://www.mangapanda.com/alphabetical'
-    item_tags = ['series_col']
     language = 'en'
 
     def fetch_list(self):
@@ -13,5 +12,9 @@ class MangaPanda(Source):
 
         parsed = self.parsed
         items = []
-        for tag in self.item_tags:
-            print(parsed.find_all(tag))
+
+        for results in parsed.body.find_all('ul', 'series_alpha'):
+            for result in results.find_all('li'):
+                for res in result.find_all('a'):
+                    items.append([res.text, self.url + res.get('href')])
+        return items
