@@ -66,7 +66,7 @@ Parser.console_parser.add_argument(
     required=False, nargs=1,
     action=lambda *args, **kwargs: ExecuteAction(
         *args, **kwargs,
-        func=lambda *a, **kw: Index().get_source(
+        func=lambda *a, **kw: Index().source(
             kw['arg_values'][0]
         ).print_items()
     )
@@ -78,7 +78,7 @@ Parser.console_parser.add_argument(
     required=False, nargs=1,
     action=lambda *args, **kwargs: ExecuteAction(
         *args, **kwargs,
-        func=lambda *a, **kw: Index().get_source(
+        func=lambda *a, **kw: Index().source(
             kw['arg_values'][0]
         ).purge_cache()
     )

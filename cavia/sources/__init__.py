@@ -20,14 +20,14 @@ class Index(object):
         self._sources.append(MangaPanda)
 
     @property
-    def list(self, *args, **kwargs):
+    def list(self):
         return sorted([src.name for src in self._sources])
 
     @property
     def sources(self):
         return self._sources
 
-    def print_sources(self, *args, **kwargs):
+    def print_sources(self):
         lst = self.list
         lst_max = len(max(lst, key=len))
         for i, source in enumerate(lst):
@@ -39,9 +39,9 @@ class Index(object):
                     source
                 ))
 
-    def get_source(self, name):
+    def source(self, name):
         '''Return a Source instance fetched by the name.'''
-        sources = [src.__name__.lower() for src in self.sources]
+        sources = [src.name for src in self.sources]
 
         name = name.lower()
         if name not in sources:
@@ -51,7 +51,7 @@ class Index(object):
 
 
 class Source(object):
-    name = 'Source'
+    name = 'source'
     language = ''
     cache_folder = join(
         dirname(abspath(__file__)),
@@ -59,12 +59,12 @@ class Source(object):
     )
     connection_timeout = 5  # seconds
 
-    def __str__(self, *args, **kwargs):
+    def __str__(self):
         return self.name
 
-    def cache(self, name):
-        name = name.lower()
-        source = Index().get_source(name)
+    def cache(self):
+        name = self.name
+        source = Index().source(name)
         assert source is not None, 'Invalid source name!'
 
         if not exists(self.cache_folder):
@@ -80,21 +80,21 @@ class Source(object):
                 f.write(b'')
         return self.cache_file
 
-    def write_cache(self, name, content):
-        cache = self.cache(name)
+    def write_cache(self, content):
+        cache = self.cache()
         assert '.cache' in cache
 
         with open(cache, 'wb') as f:
             return f.write(content)
 
     def purge_cache(self):
-        rmtree(dirname(self.cache(self.name)))
+        rmtree(dirname(self.cache()))
 
-    def fetch_list(self, *args, **kwargs):
+    def fetch_list(self):
         '''Download and cache the result return cache the next time.
         '''
-        name = self.name.lower()
-        cache = self.cache(name)
+        name = self.name
+        cache = self.cache()
         with open(cache, 'rb') as f:
             cache = f.read()
 
@@ -104,14 +104,14 @@ class Source(object):
                 timeout=self.connection_timeout
             )
             content = website.read()
-            self.write_cache(name, content)
+            self.write_cache(content)
             cache = content
 
         self.parsed = BeautifulSoup(
             cache.decode('utf-8'), 'html.parser'
         )
 
-    def reload_list(self, *args, **kwargs):
+    def reload_list(self):
         # redownload and cache the result
         pass
 
@@ -121,7 +121,7 @@ class Source(object):
 
         items = [
             '{}.\t{}\n\t{}'.format(
-                str(i).zfill(len(str(len_items))),
+                str(i + 1).zfill(len(str(len_items))),
                 items[0],  # name
                 items[1]   # URL
             )
