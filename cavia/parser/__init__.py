@@ -1,5 +1,6 @@
 from argparse import ArgumentParser, Action
 from cavia import __version__, __name__ as name
+from cavia.core.console import Console
 from cavia.sources import Index
 
 
@@ -28,8 +29,14 @@ class ExecuteAction(Action):
         exit()
 
 
+class CaviaArgumentParser(ArgumentParser):
+    def print_help(self, *args, **kwargs):
+        print('\n'.join(Console.logo))
+        super(CaviaArgumentParser, self).print_help(*args, **kwargs)
+
+
 # create main parser
-Parser = ArgumentParser(
+Parser = CaviaArgumentParser(
     prog=name,
     epilog='Epilog',
     add_help=True
