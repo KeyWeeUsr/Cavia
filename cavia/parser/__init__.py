@@ -58,7 +58,7 @@ Parser.gui_parser = subparsers.add_parser('gui')
 
 # add optional arguments for Console.sources
 Parser.console_parser.add_argument(
-    '-l', '--list_sources',
+    '-l', '--sources',
     help='show all available sources',
     required=False, nargs=0,
     action=lambda *args, **kwargs: ExecuteAction(
@@ -68,25 +68,27 @@ Parser.console_parser.add_argument(
 )
 
 Parser.console_parser.add_argument(
-    '-s', '--source',
-    help='list all available items in a source',
-    required=False, nargs=1,
-    action=lambda *args, **kwargs: ExecuteAction(
-        *args, **kwargs,
-        func=lambda *a, **kw: Index().source(
-            kw['arg_values'][0]
-        ).print_items()
-    )
-)
-
-Parser.console_parser.add_argument(
     '-x', '--clear_cache',
     help='clear cache for a source',
     required=False, nargs=1,
+    metavar='SOURCE',
     action=lambda *args, **kwargs: ExecuteAction(
         *args, **kwargs,
         func=lambda *a, **kw: Index().source(
             kw['arg_values'][0]
         ).purge_cache()
+    )
+)
+
+Parser.console_parser.add_argument(
+    '-c', '--source_content',
+    help='list all available content items in a source',
+    required=False, nargs=1,
+    metavar='SOURCE',
+    action=lambda *args, **kwargs: ExecuteAction(
+        *args, **kwargs,
+        func=lambda *a, **kw: Index().source(
+            kw['arg_values'][0]
+        ).print_items()
     )
 )
