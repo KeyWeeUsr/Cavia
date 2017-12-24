@@ -63,7 +63,7 @@ Parser.console_parser.add_argument(
     required=False, nargs=0,
     action=lambda *args, **kwargs: ExecuteAction(
         *args, **kwargs,
-        func=Index().print_sources
+        func=lambda *args, **kwargs: Index().print_sources()
     )
 )
 

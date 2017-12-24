@@ -21,14 +21,14 @@ class Index(object):
 
     @property
     def list(self):
-        return sorted([src.name for src in self._sources])
+        return sorted([src.name for src in self.sources])
 
     @property
     def sources(self):
         return self._sources
 
     def print_sources(self):
-        lst = self.list
+        lst = sorted([src.__name__ for src in self.sources])
         lst_max = len(max(lst, key=len))
         for i, source in enumerate(lst):
             if not i % 2:
