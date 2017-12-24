@@ -80,11 +80,29 @@ class Source(object):
                 f.write(b'')
         return self.cache_file
 
+    def cache_list(self):
+        cache = self.cache()
+        self.cache_list_file = join(
+            self.source_folder,
+            self.name + '_list.cache'
+        )
+        if not exists(self.cache_list_file):
+            with open(self.cache_list_file, 'wb') as f:
+                f.write(b'')
+        return self.cache_list_file
+
     def write_cache(self, content):
         cache = self.cache()
         assert '.cache' in cache
 
         with open(cache, 'wb') as f:
+            return f.write(content)
+
+    def write_cache_list(self, content):
+        cache_list = self.cache_list()
+        assert '_list.cache' in cache_list
+
+        with open(cache_list, 'wb') as f:
             return f.write(content)
 
     def purge_cache(self):
