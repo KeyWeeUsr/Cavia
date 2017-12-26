@@ -110,6 +110,13 @@ class Source(object):
 
     def fetch_list(self):
         '''Download and cache the result return cache the next time.
+
+        Returns a dictionary of this shape::
+
+            {
+                'name1': {'i': 1, 'url': 'URL'},
+                'name2': {'i': 2, 'url': 'URL'}
+            }
         '''
         name = self.name
         cache = self.cache()
@@ -134,8 +141,29 @@ class Source(object):
         pass
 
     def print_items(self):
+        '''Print items from Source.fetch_list()
+
+        Expects a dictionary of this shape::
+
+            {
+                'name1': {'i': 1, 'url': 'URL'},
+                'name2': {'i': 2, 'url': 'URL'}
+            }
+        '''
         fetch_items = self.fetch_list()
         len_items = len(fetch_items)
+
+        # list of sorted dict keys
+        sorted_items = sorted(
+            fetch_items,
+            key=lambda key: fetch_items[key]['i']
+        )
+
+        # list of [name, url] lists
+        list_items = [
+            [item, fetch_items[item]['url']]
+            for item in sorted_items
+        ]
 
         items = [
             '{}.\t{}\n\t{}'.format(
@@ -143,6 +171,6 @@ class Source(object):
                 items[0],  # name
                 items[1]   # URL
             )
-            for i, items in enumerate(fetch_items)
+            for i, items in enumerate(list_items)
         ]
         print('\n\n'.join(items))

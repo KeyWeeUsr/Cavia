@@ -24,12 +24,16 @@ class MangaPanda(Source):
             return literal_eval(cache_items.decode('utf-8'))
 
         parsed = self.parsed
-        items = []
+        items = {}
 
+        i = 0
         for results in parsed.body.find_all('ul', 'series_alpha'):
             for result in results.find_all('li'):
                 for res in result.find_all('a'):
-                    items.append([res.text, self.url + res.get('href')])
+                    i += 1
+                    items[res.text] = {
+                        'i': i, 'url': self.url + res.get('href')
+                    }
 
         self.write_cache_list(str(items).encode('utf-8'))
         return items
