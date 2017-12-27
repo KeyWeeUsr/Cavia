@@ -11,6 +11,10 @@ class SourceDoesNotExist(Exception):
     pass
 
 
+class ItemDoesNotExist(Exception):
+    pass
+
+
 class Index(object):
     def __init__(self, *args, **kwargs):
         # list of all sources as classes
@@ -91,19 +95,65 @@ class Source(object):
                 f.write(b'')
         return self.cache_list_file
 
+    def cache_item(self, item_name):
+        cache = self.cache_list()
+        if not hasattr(self, 'cache_item_files'):
+            self.cache_item_files = {}
+
+        path = join(
+            self.source_folder,
+            self.name + '_item_{}.cache'.format(item_name)
+        )
+        self.cache_item_files[item_name] = path
+
+        if not exists(path):
+            with open(path, 'wb') as f:
+                f.write(b'')
+        return path
+
+    def cache_item_list(self, item_name):
+        cache = self.cache_item(item_name)
+        if not hasattr(self, 'cache_item_list_files'):
+            self.cache_item_list_files = {}
+
+        path = join(
+            self.source_folder,
+            self.name + '_item_list_{}.cache'.format(item_name)
+        )
+        self.cache_item_list_files[item_name] = path
+
+        if not exists(path):
+            with open(path, 'wb') as f:
+                f.write(b'')
+        return path
+
     def write_cache(self, content):
         cache = self.cache()
         assert '.cache' in cache
 
         with open(cache, 'wb') as f:
-            return f.write(content)
+            f.write(content)
 
     def write_cache_list(self, content):
         cache_list = self.cache_list()
         assert '_list.cache' in cache_list
 
         with open(cache_list, 'wb') as f:
-            return f.write(content)
+            f.write(content)
+
+    def write_cache_item(self, item_name, content):
+        cache_item = self.cache_item(item_name)
+        assert '_item_{}.cache'.format(item_name) in cache_item
+
+        with open(cache_item, 'wb') as f:
+            f.write(content)
+
+    def write_cache_item_list(self, item_name, content):
+        cache_item_list = self.cache_item_list(item_name)
+        assert '_item_list_{}.cache'.format(item_name) in cache_item_list
+
+        with open(cache_item_list, 'wb') as f:
+            f.write(content)
 
     def purge_cache(self):
         rmtree(dirname(self.cache()))
@@ -125,7 +175,7 @@ class Source(object):
 
         if not cache:
             website = urlopen(
-                self.item_url,
+                self.content_url,
                 timeout=self.connection_timeout
             )
             content = website.read()
@@ -133,6 +183,33 @@ class Source(object):
             cache = content
 
         self.parsed = BeautifulSoup(
+            cache.decode('utf-8'), 'html.parser'
+        )
+
+    def fetch_item(self, item_name):
+        '''Download and cache the result return cache the next time.
+        '''
+        name = self.name
+        items = self.fetch_list()
+
+        if item_name not in items:
+            raise ItemDoesNotExist(repr(item_name))
+
+        cache = self.cache_item(item_name)
+        with open(cache, 'rb') as f:
+            cache = f.read()
+
+        item_url = items[item_name]['url']
+        if not cache:
+            website = urlopen(
+                item_url,
+                timeout=self.connection_timeout
+            )
+            content = website.read()
+            self.write_cache_item(item_name, content)
+            cache = content
+
+        self.parsed_item = BeautifulSoup(
             cache.decode('utf-8'), 'html.parser'
         )
 
@@ -162,6 +239,32 @@ class Source(object):
         # list of [name, url] lists
         list_items = [
             [item, fetch_items[item]['url']]
+            for item in sorted_items
+        ]
+
+        items = [
+            '{}.\t{}\n\t{}'.format(
+                str(i + 1).zfill(len(str(len_items))),
+                items[0],  # name
+                items[1]   # URL
+            )
+            for i, items in enumerate(list_items)
+        ]
+        print('\n\n'.join(items))
+
+    def print_content_item(self, item_name):
+        fetch_items = self.fetch_item(item_name)
+        len_items = len(fetch_items)
+
+        # list of sorted dict keys
+        sorted_items = sorted(
+            fetch_items,
+            key=lambda key: fetch_items[key]['i']
+        )
+
+        # list of [name, url] lists
+        list_items = [
+            [fetch_items[item]['text'], fetch_items[item]['url']]
             for item in sorted_items
         ]
 

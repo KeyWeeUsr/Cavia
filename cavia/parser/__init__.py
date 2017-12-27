@@ -92,3 +92,16 @@ Parser.console_parser.add_argument(
         ).print_items()
     )
 )
+
+Parser.console_parser.add_argument(
+    '-i', '--source_content_item',
+    help='list all available parts of a content item in a source',
+    required=False, nargs=2,
+    metavar=('SOURCE', 'NAME'),
+    action=lambda *args, **kwargs: ExecuteAction(
+        *args, **kwargs,
+        func=lambda *a, **kw: Index().source(
+            kw['arg_values'][0]
+        ).print_content_item(kw['arg_values'][1])
+    )
+)
