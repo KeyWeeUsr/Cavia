@@ -105,3 +105,18 @@ Parser.console_parser.add_argument(
         ).print_content_item(kw['arg_values'][1])
     )
 )
+
+Parser.console_parser.add_argument(
+    '-d', '--source_download',
+    help='download content from source',
+    required=False, nargs=4,
+    metavar=('SOURCE', 'NAME', 'START', 'END'),
+    action=lambda *args, **kwargs: ExecuteAction(
+        *args, **kwargs,
+        func=lambda *a, **kw: Index().source(
+            kw['arg_values'][0]
+        ).download_item(
+            *kw['arg_values'][1:4]
+        )
+    )
+)

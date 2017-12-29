@@ -127,6 +127,42 @@ class Source(object):
                 f.write(b'')
         return path
 
+    def cache_download(self, item_name, part):
+        cache = self.cache_item_list(item_name)
+        if not hasattr(self, 'cache_download_files'):
+            self.cache_download_files = {}
+
+        path = join(
+            self.download_folder,
+            self.name + '_download_{}_{}.cache'.format(
+                item_name, part
+            )
+        )
+        self.cache_download_files[item_name] = path
+
+        if not exists(path):
+            with open(path, 'wb') as f:
+                f.write(b'')
+        return path
+
+    def cache_download_list(self, item_name, part):
+        cache = self.cache_download(item_name, part)
+        if not hasattr(self, 'cache_download_list_files'):
+            self.cache_download_list_files = {}
+
+        path = join(
+            self.download_folder,
+            self.name + '_download_list_{}_{}.cache'.format(
+                item_name, part
+            )
+        )
+        self.cache_download_list_files[item_name] = path
+
+        if not exists(path):
+            with open(path, 'wb') as f:
+                f.write(b'')
+        return path
+
     def write_cache(self, content):
         cache = self.cache()
         assert '.cache' in cache
@@ -153,6 +189,24 @@ class Source(object):
         assert '_item_list_{}.cache'.format(item_name) in cache_item_list
 
         with open(cache_item_list, 'wb') as f:
+            f.write(content)
+
+    def write_cache_download(self, item_name, part, content):
+        cache_download = self.cache_download(item_name, part)
+        assert '_download_{}_{}.cache'.format(
+            item_name, part
+        ) in cache_download
+
+        with open(cache_download, 'wb') as f:
+            f.write(content)
+
+    def write_cache_download_list(self, item_name, part, content):
+        cache_download_list = self.cache_download_list(item_name, part)
+        assert '_download_list_{}_{}.cache'.format(
+            item_name, part
+        ) in cache_download_list
+
+        with open(cache_download_list, 'wb') as f:
             f.write(content)
 
     def purge_cache(self):
@@ -212,6 +266,48 @@ class Source(object):
         self.parsed_item = BeautifulSoup(
             cache.decode('utf-8'), 'html.parser'
         )
+
+    def download_item(self, item_name, start, end):
+        '''Download the item's contents.
+        '''
+        name = self.name
+        parts = self.fetch_item(item_name)
+
+        urls = [
+            [str(parts[part]['i']), parts[part]['url']]
+            for part in sorted(parts, key=lambda x: parts[x]['i'])
+            if int(start) <= int(part) <= int(end)
+        ]
+
+        path = join(
+            self.source_folder,
+            self.name + '_{}'.format(item_name)
+        )
+
+        if not exists(path):
+            mkdir(path)
+        self.download_folder = path
+        self.downloading = []
+
+        for part, url in urls:
+            cache = self.cache_download(item_name, part)
+            with open(cache, 'rb') as f:
+                cache = f.read()
+
+            if not cache:
+                website = urlopen(
+                    url,
+                    timeout=self.connection_timeout
+                )
+                content = website.read()
+                self.write_cache_download(item_name, part, content)
+                cache = content
+
+            self.downloading.append([
+                part, BeautifulSoup(
+                    cache.decode('utf-8'), 'html.parser'
+                )
+            ])
 
     def reload_list(self):
         # redownload and cache the result
