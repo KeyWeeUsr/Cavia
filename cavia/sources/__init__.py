@@ -1,5 +1,5 @@
 # PYTHONIOENCODING="UTF-8" for printing
-from urllib.request import urlopen
+from urllib.request import urlopen, Request
 from bs4 import BeautifulSoup
 
 from os.path import abspath, dirname, join, exists
@@ -308,6 +308,46 @@ class Source(object):
                     cache.decode('utf-8'), 'html.parser'
                 )
             ])
+
+    def download_files(self, download_folder, name_urls):
+        '''Download the files from provided URLs.
+        '''
+        for name, urls in name_urls:
+            len_urls = len(urls)
+            print('Downloading {}:'.format(name))
+            for i, url in enumerate(urls):
+                i += 1
+                print('  Downloading {} / {}'.format(
+                    i, len_urls
+                ), end='')
+                folder = join(download_folder, name)
+                if not exists(folder):
+                    mkdir(folder)
+                print('.', end='')
+
+                request = Request(
+                    url,
+                    headers={
+                        'User-Agent' : (
+                            'Mozilla/5.0 '
+                            '(Windows NT 6.3; Win64; x64; rv:57.0) '
+                            'Gecko/20100101 Firefox/57.0'
+                        )
+                    }
+                )
+                website = urlopen(
+                    request,
+                    timeout=self.connection_timeout,
+                )
+                print('.', end='')
+                content = website.read()
+                fname = join(
+                    folder,
+                    str(i) + self.extension
+                )
+                with open(fname, 'wb') as f:
+                    f.write(content)
+                print('.')
 
     def reload_list(self):
         # redownload and cache the result

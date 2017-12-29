@@ -3,12 +3,16 @@ from cavia.sources import Source
 from os.path import dirname, join
 from ast import literal_eval
 
+from urllib.request import urlopen
+from bs4 import BeautifulSoup
+
 
 class MangaPanda(Source):
     name = 'mangapanda'
     url = 'http://www.mangapanda.com'
     content_url = 'http://www.mangapanda.com/alphabetical'
     language = 'en'
+    extension = '.jpg'
 
     def fetch_list(self):
         '''Use Source.fetch_list to download page content and parse it per
@@ -78,3 +82,37 @@ class MangaPanda(Source):
             str(items).encode('utf-8')
         )
         return items
+
+    def download_item(self, item_name, start, end):
+        '''Use Source.download_item to parse download urls
+        and retrieve the content.
+        '''
+        super(MangaPanda, self).download_item(item_name, start, end)
+        all_urls = []
+
+        for part, chap in self.downloading:
+            cache_download = self.cache_download_list(item_name, part)
+            with open(cache_download, 'rb') as f:
+                cache_download = f.read()
+
+            if not cache_download:
+                pagination = chap.find_all('select', {'id': 'pageMenu'})[0]
+                links = []
+                for opt in pagination.find_all('option'):
+                    website = urlopen(
+                        self.url + opt.attrs['value'],
+                        timeout=self.connection_timeout
+                    )
+                    content = BeautifulSoup(
+                        website.read().decode('utf-8'), 'html.parser'
+                    )
+                    found = content.find_all('img', {'id': 'img'})[0]
+                    links.append(found['src'])
+                self.write_cache_download_list(
+                    item_name, part,
+                    str(links).encode('utf-8')
+                )
+            else:
+                links = literal_eval(cache_download.decode('utf-8'))
+            all_urls.append([part, links])
+        self.download_files(self.download_folder, all_urls)
