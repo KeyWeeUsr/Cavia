@@ -23,6 +23,9 @@ class Index(object):
         from cavia.sources.mangapanda import MangaPanda
         self._sources.append(MangaPanda)
 
+        from cavia.sources.mangareader import MangaReader
+        self._sources.append(MangaReader)
+
     @property
     def list(self):
         return sorted([src.name for src in self.sources])
