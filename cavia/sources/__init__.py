@@ -213,7 +213,22 @@ class Source(object):
             f.write(content)
 
     def purge_cache(self):
-        rmtree(dirname(self.cache()))
+        try:
+            rmtree(dirname(self.cache()))
+        except OSError as err:
+            if err.errno == 41:
+                # OSError 41 / WinError 145 Folder not empty
+                # - a file or folder was most likely in use while removing
+                #   e.g. explorer.exe might have a folder inside cache folder
+                #   opened therefore rmtree stucked, but the contents *should*
+                #   be removed.
+                print(
+                    'Could not remove {}, file/folder was probably in use. '
+                    'Try to run the command again.'
+                    ''.format(repr(err.filename))
+                )
+                return
+            raise err
 
     def fetch_list(self):
         '''Download and cache the result return cache the next time.
