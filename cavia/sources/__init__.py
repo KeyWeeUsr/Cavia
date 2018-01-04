@@ -219,7 +219,8 @@ class Source(object):
         try:
             rmtree(dirname(self.cache()))
         except OSError as err:
-            if err.errno == 41:
+            if err.errno in (41, 13):
+                # PermissionError 13 Permission denied
                 # OSError 41 / WinError 145 Folder not empty
                 # - a file or folder was most likely in use while removing
                 #   e.g. explorer.exe might have a folder inside cache folder
