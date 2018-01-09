@@ -69,7 +69,7 @@ class MangaFox(Source):
         i = 0
         for results in parsed.body.find_all('div', {'id': 'chapters'}):
             for result in reversed(results.find_all('ul', 'chlist')):
-                for res in reversed(results.find_all('li')):
+                for res in reversed(result.find_all('li')):
                     i += 1
 
                     a_tag = res.find('a', 'tips')
