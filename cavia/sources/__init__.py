@@ -298,7 +298,7 @@ class Source(object):
         urls = [
             [str(parts[part]['i']), parts[part]['url']]
             for part in sorted(parts, key=lambda x: parts[x]['i'])
-            if int(start) <= int(part) <= int(end)
+            if float(start) <= float(part) <= float(end)
         ]
 
         path = join(
