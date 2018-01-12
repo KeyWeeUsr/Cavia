@@ -5,6 +5,7 @@ from bs4 import BeautifulSoup
 from os.path import abspath, dirname, join, exists
 from shutil import rmtree
 from os import mkdir
+import zlib
 
 
 class SourceDoesNotExist(Exception):
@@ -331,7 +332,13 @@ class Source(object):
                     request,
                     timeout=self.connection_timeout
                 )
-                content = website.read()
+                encoding = website.info().get('Content-Encoding')
+                if encoding == 'gzip':
+                    content = zlib.decompress(
+                        website.read(), 16 + zlib.MAX_WBITS
+                    )
+                else:
+                    content = website.read()
                 self.write_cache_download(item_name, part, content)
                 cache = content
 
