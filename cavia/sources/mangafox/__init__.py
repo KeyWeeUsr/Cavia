@@ -3,8 +3,9 @@ from cavia.sources import Source
 from os.path import dirname, join
 from ast import literal_eval
 
-from urllib.request import urlopen
+from urllib.request import urlopen, Request
 from bs4 import BeautifulSoup
+import zlib
 
 
 class MangaFox(Source):
@@ -93,3 +94,65 @@ class MangaFox(Source):
             str(items).encode('utf-8')
         )
         return items
+
+    def download_item(self, item_name, start, end):
+        '''Use Source.download_item to parse download urls
+        and retrieve the content.
+        '''
+        super(MangaFox, self).download_item(item_name, start, end)
+        all_urls = []
+
+        for part, chap in self.downloading:
+            cache_download = self.cache_download_list(item_name, part)
+            with open(cache_download, 'rb') as f:
+                cache_download = f.read()
+
+            if not cache_download:
+                url_base = chap.find_all('a', {'id': 'comments'})[0]
+                url_base = url_base.get('href')
+                bad_url = '//' + self.url[11:]
+                if url_base.startswith(bad_url):
+                    url_base = url_base.replace(bad_url, '')
+
+
+                pagination = chap.find_all('select', 'm')[0]
+                links = []
+                for opt in pagination.find_all('option'):
+                    # Comments section
+                    if opt.attrs['value'] == '0':
+                        continue
+
+                    request = Request(
+                        self.url + url_base + opt.attrs['value'] + '.html',
+                        headers={
+                            'User-Agent' : (
+                                'Mozilla/5.0 '
+                                '(Windows NT 6.3; Win64; x64; rv:57.0) '
+                                'Gecko/20100101 Firefox/57.0'
+                            )
+                        }
+                    )
+                    website = urlopen(
+                        request,
+                        timeout=self.connection_timeout
+                    )
+                    encoding = website.info().get('Content-Encoding')
+                    if encoding == 'gzip':
+                        content = zlib.decompress(
+                            website.read(), 16 + zlib.MAX_WBITS
+                        )
+                    else:
+                        content = website.read()
+                    content = BeautifulSoup(
+                        content.decode('utf-8'), 'html.parser'
+                    )
+                    found = content.find_all('img', {'id': 'image'})[0]
+                    links.append(found['src'])
+                self.write_cache_download_list(
+                    item_name, part,
+                    str(links).encode('utf-8')
+                )
+            else:
+                links = literal_eval(cache_download.decode('utf-8'))
+            all_urls.append([part, links])
+        self.download_files(self.download_folder, all_urls)
