@@ -1,5 +1,6 @@
 # PYTHONIOENCODING="UTF-8" for printing
 from urllib.request import urlopen, Request
+from urllib.error import HTTPError
 from bs4 import BeautifulSoup
 
 from os.path import abspath, dirname, join, exists
@@ -374,11 +375,21 @@ class Source(object):
                         )
                     }
                 )
-                website = urlopen(
-                    request,
-                    timeout=self.connection_timeout,
-                )
-                print('.', end='')
+                try:
+                    website = urlopen(
+                        request,
+                        timeout=self.connection_timeout,
+                    )
+                    print('.', end='')
+                except HTTPError as err:
+                    # Unauthorized
+                    if err.code == 401:
+                        print('!')
+                    print(
+                        '    Could not download {}, Error: {}'
+                        ''.format(url, err.code)
+                    )
+                    continue
                 content = website.read()
                 fname = join(
                     folder,
