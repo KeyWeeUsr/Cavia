@@ -85,7 +85,7 @@ class MangaFox(Source):
                     if item_url.startswith(bad_url):
                         item_url = item_url.replace(bad_url, '')
 
-                    items[key] = {
+                    items[str(i)] = {
                         'i': i, 'url': self.url + item_url, 'text': text
                     }
 

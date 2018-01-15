@@ -73,7 +73,7 @@ class MangaPanda(Source):
                     # MP separator for URL + chapter name
                     assert ' : ' == res.contents[-1][:3]
                     text = res.contents[-1][3:]
-                    items[key] = {
+                    items[str(i)] = {
                         'i': i, 'url': self.url + item_url, 'text': text
                     }
 
