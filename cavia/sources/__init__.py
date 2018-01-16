@@ -46,7 +46,7 @@ class Index(object):
             if not i % 2:
                 print('    {}'.format(source), end='')
             else:
-                print('    {0}{1}'.format(
+                print('\t{0}{1}'.format(
                     ' ' * lst_max,
                     source
                 ))
