@@ -3,6 +3,9 @@ from cavia.sources import Source
 from os.path import dirname, join
 from ast import literal_eval
 
+from urllib.request import urlopen
+from bs4 import BeautifulSoup
+
 
 class MangaHere(Source):
     name = 'mangahere'
@@ -90,3 +93,46 @@ class MangaHere(Source):
             str(items).encode('utf-8')
         )
         return items
+
+    def download_item(self, item_name, start, end):
+        '''Use Source.download_item to parse download urls
+        and retrieve the content.
+        '''
+        super(MangaHere, self).download_item(item_name, start, end)
+        all_urls = []
+
+        for part, chap in self.downloading:
+            cache_download = self.cache_download_list(item_name, part)
+            with open(cache_download, 'rb') as f:
+                cache_download = f.read()
+
+            if not cache_download:
+                pagination = chap.find_all('select', 'wid60')[0]
+                url_base = pagination.find_all('option')[0].attrs['value']
+                bad_url = '//' + self.url[7:]
+                if url_base.startswith(bad_url):
+                    url_base = url_base.replace(bad_url, '')
+
+                links = []
+                for opt in pagination.find_all('option'):
+                    # Featured section
+                    if opt.contents[0] == 'Featured':
+                        continue
+
+                    website = urlopen(
+                        self.url + url_base + opt.contents[0] + '.html',
+                        timeout=self.connection_timeout
+                    )
+                    content = BeautifulSoup(
+                        website.read().decode('utf-8'), 'html.parser'
+                    )
+                    found = content.find_all('img', {'id': 'image'})[0]
+                    links.append(found['src'])
+                self.write_cache_download_list(
+                    item_name, part,
+                    str(links).encode('utf-8')
+                )
+            else:
+                links = literal_eval(cache_download.decode('utf-8'))
+            all_urls.append([part, links])
+        self.download_files(self.download_folder, all_urls)
