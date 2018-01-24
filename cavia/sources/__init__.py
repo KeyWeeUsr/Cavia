@@ -258,8 +258,18 @@ class Source(object):
             cache = f.read()
 
         if not cache:
-            website = urlopen(
+            request = Request(
                 self.content_url,
+                headers={
+                    'User-Agent' : (
+                        'Mozilla/5.0 '
+                        '(Windows NT 6.3; Win64; x64; rv:57.0) '
+                        'Gecko/20100101 Firefox/57.0'
+                    )
+                }
+            )
+            website = urlopen(
+                request,
                 timeout=self.connection_timeout
             )
             content = website.read()
