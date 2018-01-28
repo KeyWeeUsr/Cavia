@@ -81,6 +81,16 @@ Parser.console_parser.add_argument(
 )
 
 Parser.console_parser.add_argument(
+    '-X', '--clear_all_cache',
+    help='clear cache for all sources',
+    required=False, nargs=0,
+    action=lambda *args, **kwargs: ExecuteAction(
+        *args, **kwargs,
+        func=lambda *a, **kw: Index().purge_all_cache()
+    )
+)
+
+Parser.console_parser.add_argument(
     '-c', '--source_content',
     help='list all available content items in a source',
     required=False, nargs=1,

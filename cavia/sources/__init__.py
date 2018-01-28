@@ -67,6 +67,10 @@ class Index(object):
 
         return self.sources[sources.index(name)]()
 
+    def purge_all_cache(self):
+        for source in self.sources:
+            source().purge_cache()
+
 
 class Source(object):
     name = 'source'
