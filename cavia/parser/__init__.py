@@ -130,3 +130,16 @@ Parser.console_parser.add_argument(
         )
     )
 )
+
+Parser.console_parser.add_argument(
+    '-s', '--search',
+    help='search all available parts of a source contents',
+    required=False, nargs=1,
+    metavar='PATTERN',
+    action=lambda *args, **kwargs: ExecuteAction(
+        *args, **kwargs,
+        func=lambda *a, **kw: Index().search(
+            kw['arg_values'][0]
+        )
+    )
+)

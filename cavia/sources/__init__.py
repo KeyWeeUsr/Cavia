@@ -8,6 +8,8 @@ from shutil import rmtree
 from os import mkdir
 import zlib
 
+import re
+
 
 class SourceDoesNotExist(Exception):
     pass
@@ -70,6 +72,27 @@ class Index(object):
     def purge_all_cache(self):
         for source in self.sources:
             source().purge_cache()
+
+    def search(self, pattern):
+        matches = {}
+        for source in self.sources:
+            src = source()
+            # return pretty Source name with matches
+            matches[source.__name__] = src.search(pattern)
+
+        len_matches = 0
+        for key in sorted(matches.keys()):
+            if not matches[key]:
+                continue
+
+            len_matches += 1
+            # separate Sources with a new line
+            if len_matches > 1:
+                print('')
+
+            print('    {}:'.format(key))
+            for match in sorted(matches[key]):
+                print('        {}'.format(match))
 
 
 class Source(object):
@@ -429,9 +452,16 @@ class Source(object):
                     f.write(content)
                 print('.')
 
-    def reload_list(self):
-        # redownload and cache the result
-        pass
+    def search(self, pattern):
+        items = self.fetch_list()
+        matches = []
+
+        for key in items:
+            match = re.findall(pattern, key, re.IGNORECASE)
+            if not match:
+                continue
+            matches.append(key)
+        return matches
 
     def print_items(self):
         '''Print items from Source.fetch_list()
