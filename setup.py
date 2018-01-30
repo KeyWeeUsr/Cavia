@@ -25,7 +25,24 @@ setup(
         'https://github.com/KeyWeeUsr/' + name + '/tarball/'
         '{}'.format(version)
     ),
-    packages=[name],
+    packages=[
+        name,
+        name + '.parser',
+        name + '.core',
+
+        # core parts used directly in console
+        name + '.core.console',
+        name + '.sources',
+        name + '.sources.mangapanda',
+        name + '.sources.mangareader',
+        name + '.sources.mangafox',
+        name + '.sources.mangahere',
+        name + '.sources.mangastream',
+
+        # GUI parts
+        name + '.core.gui',
+    ],
+    install_requires=['beautifulsoup4 >= 4.6.0'],
     classifiers=[
         'Intended Audience :: End Users/Desktop',
         'Programming Language :: Python :: 3',
