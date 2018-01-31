@@ -108,6 +108,15 @@ class Source(object):
     def __str__(self):
         return self.name
 
+    def fix_name(self, name):
+        excludes = [
+            '/', '\\', "'", '"', ',', ':',
+            '|', '*', '?', '<', '>'
+        ]
+        for exc in excludes:
+            name = name.replace(exc, '')
+        return name
+
     def cache(self):
         name = self.name
         source = Index().source(name)
@@ -142,11 +151,12 @@ class Source(object):
         if not hasattr(self, 'cache_item_files'):
             self.cache_item_files = {}
 
+        fixed_name = self.fix_name(item_name)
         path = join(
             self.source_folder,
-            self.name + '_item_{}.cache'.format(item_name)
+            self.name + '_item_{}.cache'.format(fixed_name)
         )
-        self.cache_item_files[item_name] = path
+        self.cache_item_files[fixed_name] = path
 
         if not exists(path):
             with open(path, 'wb') as f:
@@ -158,11 +168,12 @@ class Source(object):
         if not hasattr(self, 'cache_item_list_files'):
             self.cache_item_list_files = {}
 
+        fixed_name = self.fix_name(item_name)
         path = join(
             self.source_folder,
-            self.name + '_item_list_{}.cache'.format(item_name)
+            self.name + '_item_list_{}.cache'.format(fixed_name)
         )
-        self.cache_item_list_files[item_name] = path
+        self.cache_item_list_files[fixed_name] = path
 
         if not exists(path):
             with open(path, 'wb') as f:
@@ -174,13 +185,14 @@ class Source(object):
         if not hasattr(self, 'cache_download_files'):
             self.cache_download_files = {}
 
+        fixed_name = self.fix_name(item_name)
         path = join(
             self.download_folder,
             self.name + '_download_{}_{}.cache'.format(
-                item_name, part
+                fixed_name, part
             )
         )
-        self.cache_download_files[item_name] = path
+        self.cache_download_files[fixed_name] = path
 
         if not exists(path):
             with open(path, 'wb') as f:
@@ -192,13 +204,14 @@ class Source(object):
         if not hasattr(self, 'cache_download_list_files'):
             self.cache_download_list_files = {}
 
+        fixed_name = self.fix_name(item_name)
         path = join(
             self.download_folder,
             self.name + '_download_list_{}_{}.cache'.format(
-                item_name, part
+                fixed_name, part
             )
         )
-        self.cache_download_list_files[item_name] = path
+        self.cache_download_list_files[fixed_name] = path
 
         if not exists(path):
             with open(path, 'wb') as f:
@@ -221,14 +234,16 @@ class Source(object):
 
     def write_cache_item(self, item_name, content):
         cache_item = self.cache_item(item_name)
-        assert '_item_{}.cache'.format(item_name) in cache_item
+        assert '_item_{}.cache'.format(self.fix_name(item_name)) in cache_item
 
         with open(cache_item, 'wb') as f:
             f.write(content)
 
     def write_cache_item_list(self, item_name, content):
         cache_item_list = self.cache_item_list(item_name)
-        assert '_item_list_{}.cache'.format(item_name) in cache_item_list
+        assert '_item_list_{}.cache'.format(
+            self.fix_name(item_name)
+        ) in cache_item_list
 
         with open(cache_item_list, 'wb') as f:
             f.write(content)
@@ -245,7 +260,7 @@ class Source(object):
     def write_cache_download_list(self, item_name, part, content):
         cache_download_list = self.cache_download_list(item_name, part)
         assert '_download_list_{}_{}.cache'.format(
-            item_name, part
+            self.fix_name(item_name), part
         ) in cache_download_list
 
         with open(cache_download_list, 'wb') as f:
@@ -351,6 +366,7 @@ class Source(object):
         name = self.name
         parts = self.fetch_item(item_name)
 
+        fixed_name = self.fix_name(item_name)
         urls = [
             [str(parts[part]['i']), parts[part]['url']]
             for part in sorted(parts, key=lambda x: parts[x]['i'])
@@ -359,7 +375,7 @@ class Source(object):
 
         path = join(
             self.source_folder,
-            self.name + '_{}'.format(item_name)
+            self.name + '_{}'.format(fixed_name)
         )
 
         if not exists(path):
@@ -368,7 +384,7 @@ class Source(object):
         self.downloading = []
 
         for part, url in urls:
-            cache = self.cache_download(item_name, part)
+            cache = self.cache_download(fixed_name, part)
             with open(cache, 'rb') as f:
                 cache = f.read()
 
@@ -394,7 +410,7 @@ class Source(object):
                     )
                 else:
                     content = website.read()
-                self.write_cache_download(item_name, part, content)
+                self.write_cache_download(fixed_name, part, content)
                 cache = content
 
             self.downloading.append([
