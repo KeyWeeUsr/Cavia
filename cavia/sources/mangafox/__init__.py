@@ -9,9 +9,10 @@ import zlib
 
 
 class MangaFox(Source):
+    # ex http://mangafox.la
     name = 'mangafox'
-    url = 'http://www.mangafox.la'
-    content_url = 'http://www.mangafox.la/manga/'
+    url = 'http://www.fanfox.net'
+    content_url = 'http://www.fanfox.net/manga/'
     language = 'en'
     extension = '.jpg'
 
@@ -156,3 +157,7 @@ class MangaFox(Source):
                 links = literal_eval(cache_download.decode('utf-8'))
             all_urls.append([part, links])
         self.download_files(self.download_folder, all_urls)
+
+
+class FanFox(MangaFox):
+    pass

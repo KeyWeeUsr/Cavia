@@ -30,8 +30,9 @@ class Index(object):
         from cavia.sources.mangareader import MangaReader
         self._sources.append(MangaReader)
 
-        from cavia.sources.mangafox import MangaFox
+        from cavia.sources.mangafox import MangaFox, FanFox
         self._sources.append(MangaFox)
+        self._sources.append(FanFox)
 
         from cavia.sources.mangahere import MangaHere
         self._sources.append(MangaHere)
