@@ -1,0 +1,24 @@
+# How to use:
+#  * build the image first:
+#      docker build --file Dockerfile-console --tag cavia .
+#
+#  * run the container as a replacement for 'python -m cavia'
+#      docker run cavia
+#      docker run cavia console -h
+#
+#  * remove old containers from this image
+#      docker rm $(docker ps --all --quiet --filter ancestor=cavia)
+
+FROM python:3.6.4
+MAINTAINER Peter Badida <keyweeusr@gmail.com>
+
+ENV FOLDER /cavia_root
+
+RUN mkdir $FOLDER
+
+COPY setup.py $FOLDER/.
+COPY cavia $FOLDER/cavia
+
+RUN pip install $FOLDER
+
+ENTRYPOINT ["python", "-m", "cavia"]
