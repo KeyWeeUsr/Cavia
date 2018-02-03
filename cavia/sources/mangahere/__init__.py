@@ -3,8 +3,9 @@ from cavia.sources import Source
 from os.path import dirname, join
 from ast import literal_eval
 
-from urllib.request import urlopen
+from urllib.request import urlopen, Request
 from bs4 import BeautifulSoup
+from time import sleep
 
 
 class MangaHere(Source):
@@ -13,6 +14,7 @@ class MangaHere(Source):
     content_url = 'http://www.mangahere.cc/mangalist/'
     language = 'en'
     extension = '.jpg'
+    connection_timeout = 10  # seconds
 
     def fetch_list(self):
         '''Use Source.fetch_list to download page content and parse it per
@@ -119,8 +121,18 @@ class MangaHere(Source):
                     if opt.contents[0] == 'Featured':
                         continue
 
-                    website = urlopen(
+                    request = Request(
                         self.url + url_base + opt.contents[0] + '.html',
+                        headers={
+                            'User-Agent' : (
+                                'Mozilla/5.0 '
+                                '(Windows NT 6.3; Win64; x64; rv:57.0) '
+                                'Gecko/20100101 Firefox/57.0'
+                            )
+                        }
+                    )
+                    website = urlopen(
+                        request,
                         timeout=self.connection_timeout
                     )
                     content = BeautifulSoup(
@@ -128,6 +140,9 @@ class MangaHere(Source):
                     )
                     found = content.find_all('img', {'id': 'image'})[0]
                     links.append(found['src'])
+
+                    # necessary to slow down, otherwise 503
+                    sleep(.06)
                 self.write_cache_download_list(
                     item_name, part,
                     str(links).encode('utf-8')
