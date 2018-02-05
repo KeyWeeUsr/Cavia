@@ -30,7 +30,7 @@ TREE = {
 def mocked_urlopen(url, *args, **kwargs):
     if isinstance(url, Request):
         url = url.get_full_url()
-    with open(TREE[url], 'rb') as f:
+    with open(PATHS[url], 'rb') as f:
         return BytesIO(f.read())
 
 
