@@ -1,7 +1,10 @@
 from cavia.parser import Parser
 
 
-if __name__ == '__main__':
+def run_main(name):
+    if name != '__main__':
+        return
+
     Parser.set_defaults(type='main')
     Parser.console_parser.set_defaults(type='console')
     Parser.gui_parser.set_defaults(type='gui')
@@ -15,3 +18,6 @@ if __name__ == '__main__':
     elif main_parser.type == 'gui':
         from cavia.core.gui import GUI as Client
     Client(**vars(main_parser)).run()
+
+
+run_main(__name__)
