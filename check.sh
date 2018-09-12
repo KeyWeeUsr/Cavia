@@ -7,7 +7,7 @@ python -m pycodestyle \
     --max-line-length=79 \
     .
 
-python -m pylint --jobs=0 .
+python -m pylint --jobs=0 setup.py cavia
 
 python -m unittest discover \
     --failfast \
