@@ -3,7 +3,7 @@
 <img
     align="right"
     height="256"
-    src="https://raw.github.com/KeyWeeUsr/Cavia/master/cavia/data/logo.png"
+    src="https://raw.githubusercontent.com/KeyWeeUsr/Cavia/master/cavia/data/logo.jpg"
 />
 
 Because guinea pigs are kawaii~
