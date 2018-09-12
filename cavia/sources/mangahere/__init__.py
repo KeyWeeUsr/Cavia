@@ -124,7 +124,7 @@ class MangaHere(Source):
                     request = Request(
                         self.url + url_base + opt.contents[0] + '.html',
                         headers={
-                            'User-Agent' : (
+                            'User-Agent': (
                                 'Mozilla/5.0 '
                                 '(Windows NT 6.3; Win64; x64; rv:57.0) '
                                 'Gecko/20100101 Firefox/57.0'

@@ -115,7 +115,6 @@ class MangaFox(Source):
                 if url_base.startswith(bad_url):
                     url_base = url_base.replace(bad_url, '')
 
-
                 pagination = chap.find_all('select', 'm')[0]
                 links = []
                 for opt in pagination.find_all('option'):
@@ -126,7 +125,7 @@ class MangaFox(Source):
                     request = Request(
                         self.url + url_base + opt.attrs['value'] + '.html',
                         headers={
-                            'User-Agent' : (
+                            'User-Agent': (
                                 'Mozilla/5.0 '
                                 '(Windows NT 6.3; Win64; x64; rv:57.0) '
                                 'Gecko/20100101 Firefox/57.0'

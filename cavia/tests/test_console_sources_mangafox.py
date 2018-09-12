@@ -27,6 +27,7 @@ TREE = {
     }
 }
 
+
 def mocked_urlopen(url, *args, **kwargs):
     if isinstance(url, Request):
         url = url.get_full_url()
