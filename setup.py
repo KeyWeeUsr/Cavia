@@ -27,6 +27,9 @@ setup(
     ),
     packages=find_packages(),
     install_requires=['beautifulsoup4 >= 4.6.0'],
+    extras_require={
+        'dev': ['pycodestyle', 'pylint']
+    },
     classifiers=[
         'Intended Audience :: End Users/Desktop',
         'Programming Language :: Python :: 3',
