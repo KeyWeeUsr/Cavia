@@ -10,8 +10,7 @@ package = join(
 
 
 with open(join(package, '__init__.py'), 'w') as f:
-    f.write("__version__ = '{}'".format(version))
-    f.write('')
+    f.write("__version__ = '{}'\n".format(version))
 
 
 setup(
