@@ -1,4 +1,4 @@
-from distutils.core import setup
+from setuptools import setup, find_packages
 from os.path import dirname, abspath, join
 
 
@@ -25,23 +25,7 @@ setup(
         'https://github.com/KeyWeeUsr/' + name + '/tarball/'
         '{}'.format(version)
     ),
-    packages=[
-        name,
-        name + '.parser',
-        name + '.core',
-
-        # core parts used directly in console
-        name + '.core.console',
-        name + '.sources',
-        name + '.sources.mangapanda',
-        name + '.sources.mangareader',
-        name + '.sources.mangafox',
-        name + '.sources.mangahere',
-        name + '.sources.mangastream',
-
-        # GUI parts
-        name + '.core.gui',
-    ],
+    packages=find_packages(),
     install_requires=['beautifulsoup4 >= 4.6.0'],
     classifiers=[
         'Intended Audience :: End Users/Desktop',
