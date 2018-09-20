@@ -3,20 +3,30 @@ from unittest.mock import patch, MagicMock
 
 
 class ParserTestCase(unittest.TestCase):
+    # actually disables any writing to STDOUT except e.g. assert output
+    # but also keeps trash out of the test output
+    # NOTE: although mocking print() itself helps pulling the arguments out
+    #       via calls to the Mock object, it does not suppress the writing (?!)
+    # NOTE2: although the print() can be mocked with different values,
+    #        writing to the STDOUT itself preserves the ORIGINAL! values from
+    #        print_help() function nevertheless (mock bug?). Perhaps the write
+    #        is executed outside of the mock or even function (meh?) scope?
     @staticmethod
-    def test_argument_parser():
+    @patch('sys.stdout.write')
+    def test_argument_parser(stdout_mock):
+        assert isinstance(stdout_mock, MagicMock), type(stdout_mock)
         lines = ['a', 'b', 'c']
         console_mock = MagicMock(**{'logo': lines})
 
         # mock Console to inject custom lines for print_help()
         with patch(target='cavia.parser.Console', new=console_mock):
             # mock print() to check the output
-            with patch(target='builtins.print') as stdout:
+            with patch(target='builtins.print') as print_mock:
                 from cavia.parser import CaviaArgumentParser as CAP
                 CAP().print_help()
 
         # check the print_help() call
-        stdout.assert_called_once_with('\n'.join(lines))
+        print_mock.assert_called_with('\n'.join(lines))
 
     def test_parser_setup(self):
         # pylint: disable=protected-access
